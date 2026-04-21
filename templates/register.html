@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% block title %}Register — FaceAttend{% endblock %}
+
+{% block content %}
+<section class="form-section">
+    <div class="glass-card glass-card-md">
+
+        <!-- Registration Form -->
+        <div id="registration-form">
+            <h2 class="form-title">
+                <i class="bi bi-person-plus" style="color: var(--accent-primary);"></i>
+                Student Registration
+            </h2>
+            <p class="form-subtitle">Register once, get recognized every day</p>
+
+            <form id="reg-form" onsubmit="handleRegistration(event)">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label-custom" for="reg-name">Full Name</label>
+                            <input type="text" class="form-input" id="reg-name" placeholder="e.g., Ram Kumar"
+                                   oninput="validateName(this)" required>
+                            <div class="error-text" id="name-error"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label-custom" for="reg-number">Registration Number</label>
+                            <input type="text" class="form-input" id="reg-number" placeholder="e.g., 21103135014"
+                                   maxlength="11" oninput="validateRegNumber(this)" required>
+                            <div class="error-text" id="reg-error"></div>
+                            <div class="reg-hint" id="reg-hint" style="font-size: 0.78rem; margin-top: 0.3rem; color: var(--text-muted); line-height: 1.5;">
+                                <i class="bi bi-info-circle"></i> Format: <strong>YY</strong> + <strong style="color:var(--accent-primary)">BranchCode</strong> + <strong>135</strong> + <strong>RollNo</strong> = 11 digits
+                                <br>
+                                <span style="font-size: 0.72rem;">Branch codes: 101=CE, 102=ME, <strong>103=EE</strong>, 104=ECE, 105=CSE, 106=IT, 107=EEE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label-custom" for="reg-dob">Date of Birth</label>
+                            <input type="date" class="form-input" id="reg-dob" required>
+                            <div class="error-text" id="dob-error"></div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">
+                                <i class="bi bi-info-circle"></i> You must be at least 18 years old
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label-custom" for="reg-phone">
+                                Phone Number <span style="color: var(--accent-primary); font-weight: 800;">+91</span>
+                            </label>
+                            <div style="display: flex; gap: 0;">
+                                <div style="background: rgba(99,102,241,0.15); border: 1px solid var(--glass-border); border-right: none; border-radius: var(--radius-md) 0 0 var(--radius-md); padding: 0.75rem 0.8rem; color: var(--accent-primary); font-weight: 700; font-size: 0.9rem; display: flex; align-items: center;">
+                                    +91
+                                </div>
+                                <input type="text" class="form-input" id="reg-phone" placeholder="e.g., 9876543210"
+                                       maxlength="10" style="border-radius: 0 var(--radius-md) var(--radius-md) 0;" required>
+                            </div>
+                            <div class="error-text" id="phone-error"></div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">
+                                <i class="bi bi-info-circle"></i> Must start with 6, 7, 8, or 9
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label-custom" for="reg-branch">Branch <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: none;">(auto-detected from Reg.No.)</span></label>
+                    <select class="form-select-custom" id="reg-branch" required>
+                        <option value="">Select Branch</option>
+                        <option value="CE">CE — Civil Engineering (Code: 101)</option>
+                        <option value="ME">ME — Mechanical Engineering (Code: 102)</option>
+                        <option value="EE">EE — Electrical Engineering (Code: 103)</option>
+                        <option value="ECE">ECE — Electronics & Communication (Code: 104)</option>
+                        <option value="CSE">CSE — Computer Science (Code: 105)</option>
+                        <option value="IT">IT — Information Technology (Code: 106)</option>
+                        <option value="EEE">EEE — Electrical & Electronics (Code: 107)</option>
+                    </select>
+                </div>
+
+                <!-- Camera Section -->
+                <div class="form-group">
+                    <label class="form-label-custom">Face Capture</label>
+                    <div class="camera-container" id="camera-container">
+                        <video id="reg-video" autoplay playsinline muted></video>
+                        <canvas id="reg-canvas" style="display: none;"></canvas>
+                        <div class="camera-overlay">
+                            <div class="face-guide"></div>
+                        </div>
+                        <div class="camera-flash"></div>
+                    </div>
+                    <div class="camera-controls">
+                        <button type="button" class="btn-secondary-custom" id="start-camera-btn" onclick="startRegistrationCamera()">
+                            <i class="bi bi-camera-video"></i> Start Camera
+                        </button>
+                        <button type="button" class="capture-btn" id="capture-btn" onclick="captureRegistrationFace()"
+                                title="Capture Face" style="display: none;"></button>
+                    </div>
+                    <div class="capture-count" id="capture-status">
+                        <i class="bi bi-info-circle"></i> Click "Start Camera" to begin face capture
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary-custom w-100 justify-content-center mt-3" id="register-submit-btn">
+                    <span><i class="bi bi-check-lg"></i> Complete Registration</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Success / Already Registered State -->
+        <div id="registration-success" style="display: none;">
+            <div class="result-card">
+                <div class="success-check">✓</div>
+                <h3>Registration Successful!</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                    Your face has been registered. You can now login and mark your attendance using face recognition.
+                </p>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="{{ url_for('student_login') }}" class="btn-primary-custom">
+                        <span><i class="bi bi-box-arrow-in-right"></i> Login Now</span>
+                    </a>
+                    <a href="{{ url_for('register') }}" class="btn-secondary-custom">
+                        <i class="bi bi-person-plus"></i> Register Another
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let regCamera = null;
+
+    async function startRegistrationCamera() {
+        const video = document.getElementById('reg-video');
+        const canvas = document.getElementById('reg-canvas');
+        regCamera = new CameraManager(video, canvas);
+        window.camera = regCamera;
+        window.capturedFaceImage = null;
+
+        const started = await regCamera.start();
+        if (started) {
+            document.getElementById('start-camera-btn').style.display = 'none';
+            document.getElementById('capture-btn').style.display = 'inline-block';
+            document.getElementById('capture-status').innerHTML =
+                '<i class="bi bi-camera"></i> Position your face in the circle and click the capture button';
+        }
+    }
+
+    function captureRegistrationFace() {
+        if (!regCamera || !regCamera.isActive) {
+            showToast('Camera is not active!', 'warning');
+            return;
+        }
+
+        const image = regCamera.capture();
+        if (image) {
+            window.capturedFaceImage = image;
+            document.getElementById('capture-status').innerHTML =
+                '<span style="color: var(--success);"><i class="bi bi-check-circle"></i> Face captured successfully! You can recapture or submit.</span>';
+        }
+    }
+</script>
+{% endblock %}

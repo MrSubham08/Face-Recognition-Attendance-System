@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — FaceAttend{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 1rem; position: relative; z-index: 1;">
+    <div class="glass-card glass-card-lg">
+
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div>
+                <h2 class="dashboard-title">
+                    <i class="bi bi-speedometer2" style="color: var(--accent-primary);"></i>
+                    Student Dashboard
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">
+                    Mark your attendance using face recognition
+                </p>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ session.student_name[0] | upper }}
+                </div>
+                <div>
+                    <div class="user-name">{{ session.student_name }}</div>
+                    <div class="user-role">{{ session.student_branch }} • {{ session.student_reg }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card" id="stat-present">
+                <div class="stat-value">{{ present_days }}</div>
+                <div class="stat-label">Days Present</div>
+            </div>
+            <div class="stat-card" id="stat-working">
+                <div class="stat-value">{{ working_days }}</div>
+                <div class="stat-label">Working Days</div>
+            </div>
+            <div class="stat-card" id="stat-percentage">
+                <div class="stat-value">{{ percentage }}%</div>
+                <div class="stat-label">Attendance</div>
+            </div>
+            <div class="stat-card" id="stat-status">
+                <div class="stat-value" style="-webkit-text-fill-color: {% if already_marked %}var(--success){% else %}var(--warning){% endif %}; background: none;">
+                    {% if already_marked %}
+                        <i class="bi bi-check-circle"></i>
+                    {% else %}
+                        <i class="bi bi-clock"></i>
+                    {% endif %}
+                </div>
+                <div class="stat-label">
+                    {% if already_marked %}Marked Today{% else %}Pending{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Link to History -->
+        <div style="margin-bottom: 1.5rem;">
+            <a href="{{ url_for('student_history') }}" class="btn-secondary-custom">
+                <i class="bi bi-clock-history"></i> View Attendance History
+            </a>
+        </div>
+
+        <!-- Attendance Section -->
+        {% if already_marked %}
+        <div class="alert-custom alert-success">
+            <span>✓</span>
+            Your attendance has already been marked for today. See you tomorrow!
+        </div>
+        {% else %}
+        <div id="attendance-camera">
+            <h3 style="font-family: var(--font-display); font-size: 1.2rem; margin-bottom: 1rem;">
+                <i class="bi bi-camera-video" style="color: var(--accent-primary);"></i>
+                Mark Today's Attendance
+            </h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                Start the camera, position your face, and click capture to mark your attendance.
+            </p>
+
+            <div class="camera-container" id="attendance-camera-container">
+                <video id="att-video" autoplay playsinline muted></video>
+                <canvas id="att-canvas" style="display: none;"></canvas>
+                <div class="camera-overlay">
+                    <div class="face-guide"></div>
+                </div>
+                <div class="camera-flash"></div>
+            </div>
+            <div class="camera-controls">
+                <button type="button" class="btn-secondary-custom" id="att-start-camera" onclick="startAttendanceCamera()">
+                    <i class="bi bi-camera-video"></i> Start Camera
+                </button>
+                <button type="button" class="btn-success-custom" id="att-capture-btn" onclick="captureAndMarkAttendance()"
+                        style="display: none;">
+                    <i class="bi bi-check2-circle"></i> Capture & Mark Attendance
+                </button>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Attendance Result (shown after marking) -->
+        <div id="attendance-result" style="display: none;"></div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let attCamera = null;
+
+    async function startAttendanceCamera() {
+        const video = document.getElementById('att-video');
+        const canvas = document.getElementById('att-canvas');
+        attCamera = new CameraManager(video, canvas);
+        window.camera = attCamera;
+
+        const started = await attCamera.start();
+        if (started) {
+            document.getElementById('att-start-camera').style.display = 'none';
+            document.getElementById('att-capture-btn').style.display = 'inline-flex';
+        }
+    }
+
+    function captureAndMarkAttendance() {
+        if (!attCamera || !attCamera.isActive) {
+            showToast('Camera is not active!', 'warning');
+            return;
+        }
+
+        const image = attCamera.capture();
+        if (image) {
+            handleAttendance(image);
+        }
+    }
+</script>
+{% endblock %}

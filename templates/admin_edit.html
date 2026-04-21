@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Edit Student — FaceAttend{% endblock %}
+
+{% block content %}
+<section class="form-section">
+    <div class="glass-card glass-card-sm">
+        <h2 class="form-title">
+            <i class="bi bi-pencil-square" style="color: var(--accent-primary);"></i>
+            Edit Student
+        </h2>
+        <p class="form-subtitle">Update student information</p>
+
+        <form method="POST" action="{{ url_for('admin_edit_student', student_id=student['id']) }}" id="edit-student-form">
+            <div class="form-group">
+                <label class="form-label-custom" for="edit-name">
+                    <i class="bi bi-person"></i> Full Name
+                </label>
+                <input type="text" class="form-input" id="edit-name" name="name"
+                       value="{{ student['name'] }}" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label-custom" for="edit-reg">
+                    <i class="bi bi-hash"></i> Registration Number
+                </label>
+                <input type="text" class="form-input" id="edit-reg"
+                       value="{{ student['reg_number'] }}" disabled
+                       style="opacity: 0.6; cursor: not-allowed;">
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem;">
+                    <i class="bi bi-lock"></i> Registration number cannot be changed
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label-custom" for="edit-phone">
+                    <i class="bi bi-phone"></i> Phone Number
+                </label>
+                <input type="text" class="form-input" id="edit-phone" name="phone"
+                       value="{{ student['phone'] }}" maxlength="10" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label-custom" for="edit-branch">
+                    <i class="bi bi-building"></i> Branch
+                </label>
+                <select class="form-select-custom" id="edit-branch" name="branch" required>
+                    <option value="CSE" {% if student['branch'] == 'CSE' %}selected{% endif %}>CSE — Computer Science</option>
+                    <option value="ECE" {% if student['branch'] == 'ECE' %}selected{% endif %}>ECE — Electronics & Communication</option>
+                    <option value="EE" {% if student['branch'] == 'EE' %}selected{% endif %}>EE — Electrical Engineering</option>
+                    <option value="ME" {% if student['branch'] == 'ME' %}selected{% endif %}>ME — Mechanical Engineering</option>
+                    <option value="CE" {% if student['branch'] == 'CE' %}selected{% endif %}>CE — Civil Engineering</option>
+                    <option value="IT" {% if student['branch'] == 'IT' %}selected{% endif %}>IT — Information Technology</option>
+                    <option value="EEE" {% if student['branch'] == 'EEE' %}selected{% endif %}>EEE — Electrical & Electronics</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button type="submit" class="btn-primary-custom flex-grow-1 justify-content-center" id="save-edit-btn">
+                    <span><i class="bi bi-check-lg"></i> Save Changes</span>
+                </button>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn-secondary-custom justify-content-center" style="flex: 0 0 auto;">
+                    <i class="bi bi-x-lg"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

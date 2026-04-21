@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard — FaceAttend{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 1rem; position: relative; z-index: 1;">
+    <div class="glass-card glass-card-lg">
+
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div>
+                <h2 class="dashboard-title">
+                    <i class="bi bi-speedometer2" style="color: var(--accent-primary);"></i>
+                    Admin Dashboard
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">
+                    Real-time attendance overview &amp; student management
+                </p>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                    {{ session.admin_name[0] | upper }}
+                </div>
+                <div>
+                    <div class="user-name">{{ session.admin_name | capitalize }}</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card" id="admin-stat-total">
+                <div class="stat-value">{{ data | length }}</div>
+                <div class="stat-label">
+                    {% if selected_branch != 'all' %}{{ selected_branch }} Students{% else %}Total Students{% endif %}
+                </div>
+            </div>
+            <div class="stat-card" id="admin-stat-working">
+                <div class="stat-value">{{ working_days }}</div>
+                <div class="stat-label">Working Days (Till Today)</div>
+            </div>
+            <div class="stat-card" id="admin-stat-branches">
+                <div class="stat-value">{{ branches | length }}</div>
+                <div class="stat-label">Active Branches</div>
+            </div>
+            <div class="stat-card" id="admin-stat-avg">
+                <div class="stat-value">
+                    {% if data %}
+                        {{ "%.1f"|format(data | map(attribute='percentage') | list | sum / (data | length)) }}%
+                    {% else %}
+                        0%
+                    {% endif %}
+                </div>
+                <div class="stat-label">Avg. Attendance</div>
+            </div>
+        </div>
+
+        <!-- Branch Filters -->
+        <div class="branch-filters" id="branch-filter-group">
+            <a href="{{ url_for('admin_dashboard', branch='all') }}"
+               class="branch-btn {% if selected_branch == 'all' %}active{% endif %}" id="filter-all">
+                All Branches
+            </a>
+            {% for branch in branches %}
+            <a href="{{ url_for('admin_dashboard', branch=branch) }}"
+               class="branch-btn {% if selected_branch == branch %}active{% endif %}" id="filter-{{ branch }}">
+                {{ branch }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- Attendance Table with ALL Student Details -->
+        {% if data %}
+        <div class="table-container" id="attendance-table-container">
+            <table class="table-custom" id="attendance-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Branch</th>
+                        <th>Registration No.</th>
+                        <th>DOB</th>
+                        <th>Phone</th>
+                        <th>Present</th>
+                        <th>Attendance %</th>
+                        <th>Registered On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in data %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td style="color: var(--text-primary); font-weight: 500;">{{ student.name }}</td>
+                        <td>
+                            <span style="background: var(--accent-primary-glow); padding: 3px 10px; border-radius: 50px; font-size: 0.82rem; font-weight: 600; color: var(--accent-primary);">
+                                {{ student.branch }}
+                            </span>
+                        </td>
+                        <td style="font-family: monospace; font-size: 0.85rem;">{{ student.reg_number }}</td>
+                        <td style="font-size: 0.85rem;">{{ student.dob }}</td>
+                        <td style="font-size: 0.85rem;">
+                            <span style="color: var(--text-muted);">+91</span> {{ student.phone }}
+                        </td>
+                        <td>{{ student.present_days }} / {{ student.working_days }}</td>
+                        <td>
+                            {% if student.percentage >= 75 %}
+                                <span class="attendance-badge high">{{ student.percentage }}%</span>
+                            {% elif student.percentage >= 50 %}
+                                <span class="attendance-badge medium">{{ student.percentage }}%</span>
+                            {% else %}
+                                <span class="attendance-badge low">{{ student.percentage }}%</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size: 0.8rem; color: var(--text-muted);">
+                            {{ student.created_at[:10] if student.created_at else 'N/A' }}
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.4rem;">
+                                <a href="{{ url_for('admin_edit_student', student_id=student.id) }}"
+                                   class="btn-secondary-custom" style="padding: 0.35rem 0.7rem; font-size: 0.8rem;"
+                                   title="Edit Student">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button type="button"
+                                        class="btn-danger-custom" style="padding: 0.35rem 0.7rem; font-size: 0.8rem;"
+                                        onclick="confirmDelete({{ student.id }}, '{{ student.name }}')"
+                                        title="Delete Student">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 3rem 1rem;">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: var(--text-muted);"></i>
+            <p style="color: var(--text-muted); margin-top: 1rem;">
+                {% if selected_branch != 'all' %}
+                    No students found in <strong>{{ selected_branch }}</strong> branch.
+                {% else %}
+                    No students registered yet. Students will appear here once registered.
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: var(--radius-lg);">
+            <div class="modal-header" style="border-bottom: 1px solid var(--glass-border);">
+                <h5 class="modal-title" style="font-family: var(--font-display); color: var(--danger);">
+                    <i class="bi bi-exclamation-triangle"></i> Confirm Delete
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="color: var(--text-secondary);">
+                <p>Are you sure you want to delete student <strong id="delete-student-name" style="color: var(--text-primary);"></strong>?</p>
+                <p style="color: var(--danger); font-size: 0.85rem;">
+                    <i class="bi bi-info-circle"></i> This will permanently remove the student and all their attendance records.
+                </p>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid var(--glass-border);">
+                <button type="button" class="btn-secondary-custom" data-bs-dismiss="modal" style="padding: 0.5rem 1.2rem;">
+                    Cancel
+                </button>
+                <form id="delete-form" method="POST" style="display: inline;">
+                    <button type="submit" class="btn-danger-custom" style="padding: 0.5rem 1.2rem;">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

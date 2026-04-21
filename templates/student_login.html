@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Student Login — FaceAttend{% endblock %}
+
+{% block content %}
+<section class="form-section">
+    <div class="glass-card glass-card-sm">
+        <h2 class="form-title">
+            <i class="bi bi-mortarboard" style="color: var(--accent-primary);"></i>
+            Student Login
+        </h2>
+        <p class="form-subtitle">Login with your Registration Number &amp; Date of Birth</p>
+
+        <form method="POST" action="{{ url_for('student_login') }}" id="student-login-form">
+            <div class="form-group">
+                <label class="form-label-custom" for="login-reg-number">
+                    <i class="bi bi-person-badge"></i> Registration Number
+                </label>
+                <input type="text" class="form-input" id="login-reg-number" name="reg_number"
+                       placeholder="Enter your registration number" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label-custom" for="login-dob">
+                    <i class="bi bi-calendar-date"></i> Date of Birth (Password)
+                </label>
+                <input type="date" class="form-input" id="login-dob" name="dob" required>
+            </div>
+
+            <button type="submit" class="btn-primary-custom w-100 justify-content-center mt-3" id="student-login-btn">
+                <span><i class="bi bi-box-arrow-in-right"></i> Login</span>
+            </button>
+        </form>
+
+        <!-- Forgot Credentials Link -->
+        <div style="text-align: center; margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+            <a href="{{ url_for('forgot_credentials') }}" style="color: var(--accent-primary); text-decoration: none; font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s;" 
+               onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                <i class="bi bi-camera-video" style="font-size: 1.1rem;"></i>
+                Forgot Credentials? Recover with Face
+            </a>
+            <p style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.4rem;">
+                Use your face to find your Registration Number &amp; Password
+            </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 1rem;">
+            <p style="color: var(--text-muted); font-size: 0.85rem;">
+                Don't have an account?
+                <a href="{{ url_for('register') }}" style="color: var(--accent-primary); text-decoration: none; font-weight: 600;">
+                    Register here
+                </a>
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto-fill credentials from query parameters (from Forgot Credentials page)
+    document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        const reg = params.get('reg');
+        const dob = params.get('dob');
+
+        if (reg) {
+            document.getElementById('login-reg-number').value = reg;
+        }
+        if (dob) {
+            document.getElementById('login-dob').value = dob;
+            // Show a toast hint
+            showToast('Credentials auto-filled! Click Login to continue.', 'success');
+        }
+    });
+</script>
+{% endblock %}

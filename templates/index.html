@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}FaceAttend — Smart Face Recognition Attendance System{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section" id="hero">
+    <div class="hero-content">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            AI-Powered Attendance
+        </div>
+        <h1 class="hero-title">
+            Smart Attendance with
+            <br>
+            <span class="gradient-text">Face Recognition</span>
+        </h1>
+        <p class="hero-subtitle">
+            Eliminate manual attendance forever. Register once, get recognized instantly.
+            Our AI-powered system ensures accuracy, speed, and security.
+        </p>
+        <div class="hero-actions">
+            <a href="{{ url_for('register') }}" class="btn-primary-custom" id="hero-register-btn">
+                <span><i class="bi bi-person-plus"></i> Register Now</span>
+            </a>
+            <a href="{{ url_for('student_login') }}" class="btn-secondary-custom" id="hero-student-btn">
+                <i class="bi bi-mortarboard"></i> Student Login
+            </a>
+            <a href="{{ url_for('admin_login') }}" class="btn-secondary-custom" id="hero-admin-btn">
+                <i class="bi bi-shield-lock"></i> Admin Panel
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section" id="features">
+    <div class="features-grid">
+        <div class="feature-card" id="feature-register">
+            <div class="feature-icon">
+                <i class="bi bi-camera-video"></i>
+            </div>
+            <h3>One-Time Registration</h3>
+            <p>Register with a live camera capture. Your face encoding is securely stored and used for instant recognition every day.</p>
+        </div>
+        <div class="feature-card" id="feature-attendance">
+            <div class="feature-icon">
+                <i class="bi bi-check2-circle"></i>
+            </div>
+            <h3>Instant Attendance</h3>
+            <p>Just look at the camera — your attendance is marked in seconds. No IDs, no passwords for daily check-in.</p>
+        </div>
+        <div class="feature-card" id="feature-admin">
+            <div class="feature-icon">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <h3>Admin Dashboard</h3>
+            <p>Real-time tracking with branch-wise filtering, attendance percentages, and comprehensive analytics.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

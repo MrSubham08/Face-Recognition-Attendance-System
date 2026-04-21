@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Attendance History — FaceAttend{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 2rem 1rem; position: relative; z-index: 1;">
+    <div class="glass-card glass-card-lg">
+
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div>
+                <h2 class="dashboard-title">
+                    <i class="bi bi-clock-history" style="color: var(--accent-primary);"></i>
+                    Attendance History
+                </h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">
+                    Your complete attendance record
+                </p>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">
+                    {{ session.student_name[0] | upper }}
+                </div>
+                <div>
+                    <div class="user-name">{{ session.student_name }}</div>
+                    <div class="user-role">{{ session.student_branch }} • {{ session.student_reg }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ present_days }}</div>
+                <div class="stat-label">Days Present</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ working_days }}</div>
+                <div class="stat-label">Working Days (Till Today)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ percentage }}%</div>
+                <div class="stat-label">Attendance %</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ history | length }}</div>
+                <div class="stat-label">Total Records</div>
+            </div>
+        </div>
+
+        <!-- History Table -->
+        {% if history %}
+        <div class="table-container">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>Day</th>
+                        <th>Time Marked</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in history %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td style="color: var(--text-primary); font-weight: 500;">{{ record.date }}</td>
+                        <td>
+                            {% set day_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] %}
+                            {{ day_names[record.date | replace('-','') | int | string | truncate(0) ] if false else record.date }}
+                        </td>
+                        <td>{{ record.timestamp }}</td>
+                        <td><span class="attendance-badge high">Present</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 3rem 1rem;">
+            <i class="bi bi-calendar-x" style="font-size: 3rem; color: var(--text-muted);"></i>
+            <p style="color: var(--text-muted); margin-top: 1rem;">
+                No attendance records found. Mark your first attendance from the dashboard!
+            </p>
+            <a href="{{ url_for('student_dashboard') }}" class="btn-primary-custom" style="margin-top: 1rem;">
+                <span><i class="bi bi-speedometer2"></i> Go to Dashboard</span>
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Back Button -->
+        <div style="margin-top: 1.5rem;">
+            <a href="{{ url_for('student_dashboard') }}" class="btn-secondary-custom">
+                <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
