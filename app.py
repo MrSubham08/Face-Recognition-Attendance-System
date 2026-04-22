@@ -418,8 +418,10 @@ def logout():
     return redirect(url_for('index'))
 
 
-# ─── Initialize and Run ────────────────────────────────────────
+# ─── Initialize ────────────────────────────────────────────────
+init_db()
+os.makedirs('face_data', exist_ok=True)
+
+# ─── Run (development only) ───────────────────────────────────
 if __name__ == '__main__':
-    init_db()
-    os.makedirs('face_data', exist_ok=True)
     app.run(debug=True, host='0.0.0.0', port=5000)
