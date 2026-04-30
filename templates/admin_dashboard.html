@@ -18,10 +18,10 @@
             </div>
             <div class="user-info">
                 <div class="user-avatar" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
-                    {{ session.admin_name[0] | upper }}
+                    {{ current_user.name[0] | upper }}
                 </div>
                 <div>
-                    <div class="user-name">{{ session.admin_name | capitalize }}</div>
+                    <div class="user-name">{{ current_user.name | capitalize }}</div>
                     <div class="user-role">Administrator</div>
                 </div>
             </div>
