@@ -38,54 +38,58 @@ def get_db():
 def init_db():
     conn = get_db()
     cursor = conn.cursor()
-    if DATABASE_URL:
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS students (
-                id SERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-                reg_number TEXT NOT NULL UNIQUE,
-                dob TEXT NOT NULL,
-                phone TEXT NOT NULL,
-                branch TEXT NOT NULL,
-                face_encoding TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS attendance (
-                id SERIAL PRIMARY KEY,
-                student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
-                date TEXT NOT NULL,
-                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE(student_id, date)
-            )
-        ''')
-    else:
-        # SQLite fallback schema
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS students (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                reg_number TEXT NOT NULL UNIQUE,
-                dob TEXT NOT NULL,
-                phone TEXT NOT NULL,
-                branch TEXT NOT NULL,
-                face_encoding TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS attendance (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                student_id INTEGER NOT NULL,
-                date TEXT NOT NULL,
-                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
-                UNIQUE(student_id, date)
-            )
-        ''')
-    conn.commit()
-    conn.close()
+    try:
+        if DATABASE_URL:
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS students (
+                    id SERIAL PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    reg_number TEXT NOT NULL UNIQUE,
+                    dob TEXT NOT NULL,
+                    phone TEXT NOT NULL,
+                    branch TEXT NOT NULL,
+                    face_encoding TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS attendance (
+                    id SERIAL PRIMARY KEY,
+                    student_id INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+                    date TEXT NOT NULL,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(student_id, date)
+                )
+            ''')
+        else:
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS students (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    reg_number TEXT NOT NULL UNIQUE,
+                    dob TEXT NOT NULL,
+                    phone TEXT NOT NULL,
+                    branch TEXT NOT NULL,
+                    face_encoding TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS attendance (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    student_id INTEGER NOT NULL,
+                    date TEXT NOT NULL,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+                    UNIQUE(student_id, date)
+                )
+            ''')
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"Init DB Warning (Expected with multiple Gunicorn workers): {e}")
+    finally:
+        conn.close()
 
 def add_student(name, reg_number, dob, phone, branch, face_encoding):
     conn = get_db()
