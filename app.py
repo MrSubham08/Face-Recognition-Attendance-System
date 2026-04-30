@@ -19,13 +19,24 @@ from database import (
 )
 from face_utils import encode_face_from_base64, match_face
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', os.urandom(24))
 
-# Admin credentials
-ADMIN_USERNAME = 'subham'
-ADMIN_PASSWORD = 'admin@1234'
+# Strict check for SECRET_KEY to prevent session breaking
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    raise ValueError("No SECRET_KEY set for Flask application. Please set it in the .env file or environment variables.")
+app.secret_key = SECRET_KEY
+
+# Admin credentials from environment variables
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+if not ADMIN_PASSWORD:
+    raise ValueError("No ADMIN_PASSWORD set for Flask application.")
 
 
 # ─── Landing Page ───────────────────────────────────────────────
