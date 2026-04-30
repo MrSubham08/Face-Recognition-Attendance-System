@@ -15,13 +15,6 @@ auth_bp = Blueprint('auth', __name__)
 def index():
     return render_template('index.html')
 
-@auth_bp.route('/debug-env')
-def debug_env():
-    """Temporary debug route — DELETE AFTER FIXING"""
-    u = os.environ.get('ADMIN_USERNAME', 'NOT_SET')
-    p = os.environ.get('ADMIN_PASSWORD', 'NOT_SET')
-    return f"USERNAME=[{u}] len={len(u)} | PASSWORD=[{p}] len={len(p)}"
-
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
